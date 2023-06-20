@@ -37,7 +37,7 @@
 namespace nil {
     namespace actor {
         namespace math {
-            // Optimal val.size must be power of two, if it's not true we have points that we will never use
+            // Optimal val.size must be a power of two, if it's not true we have points that we will never use
             template<typename FieldValueType, typename Allocator = std::allocator<FieldValueType>>
             class polynomial_dfs {
                 typedef std::vector<FieldValueType, Allocator> container_type;
@@ -65,30 +65,30 @@ namespace nil {
 
                 explicit polynomial_dfs(size_t d, size_type n) : val(n), _d(d) {
                     BOOST_ASSERT_MSG(n == crypto3::math::detail::power_of_two(n),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 explicit polynomial_dfs(size_t d, size_type n, const allocator_type& a) : val(n, a), _d(d) {
                     BOOST_ASSERT_MSG(n == crypto3::math::detail::power_of_two(n),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 polynomial_dfs(size_t d, size_type n, const value_type& x) : val(n, x), _d(d) {
                     BOOST_ASSERT_MSG(n == crypto3::math::detail::power_of_two(n),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 polynomial_dfs(size_t d, size_type n, const value_type& x, const allocator_type& a) :
                     val(n, x, a), _d(d) {
                     BOOST_ASSERT_MSG(n == crypto3::math::detail::power_of_two(n),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 template<typename InputIterator>
                 polynomial_dfs(size_t d, InputIterator first, InputIterator last) : val(first, last), _d(d) {
                     BOOST_ASSERT_MSG(std::distance(first, last) ==
                                          crypto3::math::detail::power_of_two(std::distance(first, last)),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 template<typename InputIterator>
@@ -96,7 +96,7 @@ namespace nil {
                     val(first, last, a), _d(d) {
                     BOOST_ASSERT_MSG(std::distance(first, last) ==
                                          crypto3::math::detail::power_of_two(std::distance(first, last)),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 ~polynomial_dfs() = default;
@@ -113,7 +113,7 @@ namespace nil {
                 polynomial_dfs(size_t d, std::initializer_list<value_type> il, const allocator_type& a) :
                     val(il, a), _d(d) {
                     BOOST_ASSERT_MSG(val.size() == crypto3::math::detail::power_of_two(val.size()),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
                 // TODO: add constructor with omega
 
@@ -130,12 +130,12 @@ namespace nil {
 
                 polynomial_dfs(size_t d, const container_type& c) : val(c), _d(d) {
                     BOOST_ASSERT_MSG(val.size() == crypto3::math::detail::power_of_two(val.size()),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 polynomial_dfs(size_t d, container_type&& c) : val(c), _d(d) {
                     BOOST_ASSERT_MSG(val.size() == crypto3::math::detail::power_of_two(val.size()),
-                                     "DFS optimal polynom size must be power of two");
+                                     "DFS optimal polynomial size must be a power of two");
                 }
 
                 polynomial_dfs& operator=(const polynomial_dfs& x) {
@@ -357,7 +357,7 @@ namespace nil {
                     if (this->size() == _sz)
                         return make_ready_future<>();
 
-                    // BOOST_ASSERT_MSG(_sz >= _d, "Can't restore polynomial in the future");
+                    BOOST_ASSERT_MSG(_sz >= _d, "Resizing DFS polynomial to a size less than degree is prohibited: can't restore the polynomial in the future.");
 
                     if (this->size() == 1){
                         this->val.resize(_sz, this->val[0]);
@@ -490,8 +490,7 @@ namespace nil {
                             result[i] = -result[i];
                         }
                     }).get();
-                    //                    std::transform(this->begin(), this->end(), result.begin(),
-                    //                    std::negate<FieldValueType>());
+
                     return result;
                 }
 
@@ -550,7 +549,6 @@ namespace nil {
                                 }
                             }).get();
  
-                        std::transform(tmp.begin(), tmp.end(), this->begin(), this->begin(), std::minus<FieldValueType>());
                         return *this;
                     }
                     detail::block_execution(
@@ -890,7 +888,7 @@ namespace nil {
                 os << "[Polynomial DFS, size " << poly.size()
                    << " degree " << poly.degree() << " values ";
                 for( auto it = poly.begin(); it != poly.end(); it++ ){
-                    os << it->data << ", ";
+                    os << "0x" << std::hex << it->data << ", ";
                 }
                 os << "]";
                 return os;
