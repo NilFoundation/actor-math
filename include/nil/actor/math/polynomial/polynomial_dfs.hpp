@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <vector>
 #include <ostream>
+#include <iterator>
 
 #include <nil/actor/math/polynomial/basic_operations.hpp>
 #include <nil/actor/math/algorithms/make_evaluation_domain.hpp>
@@ -404,7 +405,7 @@ namespace nil {
                 }
 
                 inline static polynomial_dfs one() {
-                    return polynomial_dfs(0, 1, 1); 
+                    return polynomial_dfs(0, size_type(1), value_type(1)); 
                 }
 
                 /**
