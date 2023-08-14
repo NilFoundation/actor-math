@@ -436,6 +436,11 @@ namespace nil {
                     return result;
                 }
 
+                polynomial& operator+=(const polynomial& other) {
+                    addition(*this, *this, other);
+                    return *this;
+                }
+
                 polynomial operator-() const {
 
                     polynomial result(this->size());
@@ -454,6 +459,11 @@ namespace nil {
                     return result;
                 }
 
+                polynomial& operator-=(const polynomial& other) {
+                    subtraction(*this, *this, other);
+                    return *this;
+                }
+
                 /**
                  * Perform the multiplication of two polynomials, polynomial A * polynomial B, and stores result in
                  * polynomial C.
@@ -464,6 +474,10 @@ namespace nil {
                     return result;
                 }
 
+                polynomial& operator*=(const polynomial& other) {
+                    multiplication(*this, *this, other);
+                    return *this;
+                }
                 /**
                  * Perform the standard Euclidean Division algorithm.
                  * Input: Polynomial A, Polynomial B, where A / B
@@ -475,6 +489,12 @@ namespace nil {
                     return q;
                 }
 
+                polynomial& operator/=(const polynomial& other) {
+                    polynomial r;
+                    division(*this, r, *this, other);
+                    return *this;
+                }
+
                 /**
                  * Perform the standard Euclidean Division algorithm.
                  * Input: Polynomial A, Polynomial B, where A / B
@@ -484,6 +504,12 @@ namespace nil {
                     polynomial r, q;
                     division(q, r, *this, other);
                     return r;
+                }
+
+                polynomial& operator%=(const polynomial& other) {
+                    polynomial q;
+                    division(q, *this, *this, other);
+                    return *this;
                 }
             };
 
