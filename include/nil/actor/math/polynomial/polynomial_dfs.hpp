@@ -471,7 +471,7 @@ namespace nil {
                  * Computes the standard polynomial addition, polynomial A + polynomial B, 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator+=(const polynomial_dfs& other) {
+                polynomial_dfs& operator+=(const polynomial_dfs& other) {
                     if (other.size() > this->size()) {
                         this->resize(other.size()).get();
                     }
@@ -503,7 +503,7 @@ namespace nil {
                  * Computes polynomial A + constant c, 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator+=(const FieldValueType& c) {
+                polynomial_dfs& operator+=(const FieldValueType& c) {
                     for(auto it = this->begin(); it!=this->end(); it++) *it += c;
                     return *this;
                 }
@@ -562,7 +562,7 @@ namespace nil {
                  * Computes the standard polynomial subtraction, polynomial A - polynomial B, 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator-=(const polynomial_dfs& other) {
+                polynomial_dfs& operator-=(const polynomial_dfs& other) {
                     if (other.size() > this->size()) {
                         this->resize(other.size()).get();
                     }
@@ -598,7 +598,7 @@ namespace nil {
                  * Computes tpolynomial A - constant c 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator-=(const FieldValueType& c) {
+                polynomial_dfs& operator-=(const FieldValueType& c) {
                     detail::block_execution(
                         this->size(),
                         smp::count,
@@ -653,7 +653,7 @@ namespace nil {
                  * Perform the multiplication of two polynomials, polynomial A * polynomial B, 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator*=(const polynomial_dfs& other) {
+                polynomial_dfs& operator*=(const polynomial_dfs& other) {
                     size_t polynomial_s =
                         crypto3::math::detail::power_of_two(std::max({this->size(), other.size(), this->degree() + other.degree() + 1}));
 
@@ -694,7 +694,7 @@ namespace nil {
                  * Perform the multiplication of a polynomial with a constant, polynomial A * constant alpha, 
                  * and stores result in polynomial A.
                  */
-                polynomial_dfs operator*=(const FieldValueType& alpha) {
+                polynomial_dfs& operator*=(const FieldValueType& alpha) {
                     detail::block_execution(
                         this->size(),
                         smp::count,
