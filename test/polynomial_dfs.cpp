@@ -948,7 +948,6 @@ ACTOR_THREAD_TEST_CASE(polynomial_dfs_multiplication_eq_resize_both) {
     BOOST_CHECK_EQUAL(c_res, a);
 }
 
-
 ACTOR_THREAD_TEST_CASE(polynomial_dfs_division) {
     // {5, 0, 0, 13, 0, 1};
     polynomial_dfs<typename FieldType::value_type> a = {
@@ -1200,7 +1199,7 @@ ACTOR_THREAD_TEST_CASE(polynomial_dfs_evaluate_after_resize_test) {
     typename FieldType::value_type point = 0x10_cppui253;
     polynomial_dfs<typename FieldType::value_type> large_poly = small_poly;
     for (size_t new_size : {16, 32, 64, 128, 256, 512}) {
-        large_poly.resize(new_size);
+        large_poly.resize(new_size).get();
         BOOST_CHECK(small_poly.evaluate(point) == large_poly.evaluate(point));
     }
 }
@@ -1222,15 +1221,15 @@ ACTOR_THREAD_TEST_CASE(polynomial_dfs_evaluate_after_resize_and_shift_test) {
 
     typename FieldType::value_type point = 0x10_cppui253;
     polynomial_dfs<typename FieldType::value_type> large_poly = small_poly;
-    small_poly = polynomial_shift(small_poly, -1, 8); 
+    small_poly = nil::actor::math::polynomial_shift(small_poly, -1, 8).get(); 
     for (size_t new_size : {16, 32, 64, 128, 256, 512}) {
-        large_poly.resize(new_size);
-        auto large_poly_shifted = polynomial_shift(large_poly, -1, 8);
+        large_poly.resize(new_size).get();
+        auto large_poly_shifted = nil::actor::math::polynomial_shift(large_poly, -1, 8).get();
         BOOST_CHECK(small_poly.evaluate(point) == large_poly_shifted.evaluate(point));
     }
 }
 
-BOOST_AUTO_TEST_CASE(polynomial_dfs_zero_one_test) {
+ACTOR_THREAD_TEST_CASE(polynomial_dfs_zero_one_test) {
     polynomial_dfs<typename FieldType::value_type> small_poly = {
         3,
         {
@@ -1250,10 +1249,9 @@ BOOST_AUTO_TEST_CASE(polynomial_dfs_zero_one_test) {
     BOOST_CHECK(zero.is_zero());
     BOOST_CHECK((small_poly - one * small_poly).is_zero());
 
-    zero.resize(100);
+    zero.resize(100).get();
     BOOST_CHECK(zero.is_zero());
 
-    one.resize(100);
+    one.resize(100).get();
     BOOST_CHECK((small_poly - one * small_poly).is_zero());
 }
-

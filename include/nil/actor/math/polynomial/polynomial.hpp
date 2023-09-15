@@ -615,7 +615,7 @@ namespace nil {
             // Used in the unit tests, so we can use BOOST_CHECK_EQUALS, and see
             // the values of polynomials, when the check fails.
             template<typename FieldValueType, typename Allocator = std::allocator<FieldValueType>,
-                     typename = typename std::enable_if<detail::is_field_element<FieldValueType>::value>::type>
+                     typename = typename std::enable_if<crypto3::algebra::is_field_element<FieldValueType>::value>::type>
             std::ostream& operator<<(std::ostream& os,
                                      const polynomial<FieldValueType, Allocator>& poly) {
                 if (poly.degree() == 0) {
