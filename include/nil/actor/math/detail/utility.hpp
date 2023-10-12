@@ -39,7 +39,7 @@ namespace nil {
                     std::vector<future<>> fut;
 
                     // We experimentally noticed, that when at least 4 cores are available, it's better to keep core #0 idle.
-                    bool use_core_0 = (smp_count >= 4);
+                    bool use_core_0 = (smp_count < 4);
 
                     std::size_t cpu_usage = std::min(elements_count, smp_count - 1);
 
