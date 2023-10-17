@@ -161,7 +161,7 @@ namespace nil {
 
                     detail::block_execution(this->m, smp::count, [&a, this](std::size_t begin, std::size_t end) {
                         for (std::size_t i = begin; i < end; i++) {
-                            a[i] = a[i] * geometric_triangular_sequence[i].inversed();
+                            a[i] *= geometric_triangular_sequence[i].inversed();
                         }
                     }).get();
 
