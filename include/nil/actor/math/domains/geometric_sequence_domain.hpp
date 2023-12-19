@@ -123,7 +123,7 @@ namespace nil {
 
                     detail::block_execution(this->m, smp::count, [&a, &T](std::size_t begin, std::size_t end) {
                         for (std::size_t i = begin; i < end; i++) {
-                            a[i] *= T[i].inversed();
+                            a[i] = a[i] * T[i].inversed();
                         }
                     }).get();
                     return make_ready_future<>();
@@ -163,7 +163,7 @@ namespace nil {
 
                     detail::block_execution(this->m, smp::count, [&a, this](std::size_t begin, std::size_t end) {
                         for (std::size_t i = begin; i < end; i++) {
-                            a[i] *= geometric_triangular_sequence[i].inversed();
+                            a[i] = a[i] * geometric_triangular_sequence[i].inversed();
                         }
                     }).get();
 
@@ -306,7 +306,7 @@ namespace nil {
                             result[i] = result[i] + t_powers_begin[j] * l[i][j];
                         }
 
-                        result[i] *= r_i * g_i[i];
+                        result[i] = result[i] * (r_i * g_i[i]);
                         r_i *= r;
                     }
 
