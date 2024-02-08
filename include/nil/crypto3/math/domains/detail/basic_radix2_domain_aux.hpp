@@ -78,7 +78,8 @@ namespace nil {
                     if (n != (1u << logn))
                         throw std::invalid_argument("expected n == (1u << logn)");
 
-                    /* swapping in place (from Storer's book) */
+                    // swapping in place (from Storer's book)
+                    // We can parallelize this look, since k and rk are pairs, they will never intersect.
                     nil::crypto3::parallel_for(0, n, 
                         [logn, &a](std::size_t k) {
                             const std::size_t rk = crypto3::math::detail::bitreverse(k, logn);
@@ -136,8 +137,13 @@ namespace nil {
                     if (omega_cache == nullptr) {
                         std::vector<typename FieldType::value_type> omega_powers;
                         create_fft_cache<FieldType>(a.size(), omega, omega_powers);
+if (omega_powers.size() == 0)
+    throw "We have a problem here.";
                         basic_radix2_fft_cached<FieldType>(a, omega_powers);
                     } else {
+if (omega_cache == nullptr || omega_cache->size() == 0)
+    throw "We have a problem here 2.";
+
                         basic_radix2_fft_cached<FieldType>(a, *omega_cache);
                     }
                 }

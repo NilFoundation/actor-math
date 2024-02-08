@@ -75,6 +75,9 @@ namespace nil {
                             throw std::invalid_argument(
                                 "basic_radix2(): expected logm <= fields::arithmetic_params<FieldType>::s");
                     }
+
+                    // We need to always create fft cache, we cannot create it when needed in parallel environment.
+                    create_fft_cache();
                 }
 
                 void fft(std::vector<value_type> &a) override {
@@ -86,9 +89,6 @@ namespace nil {
                         }
                     }
 
-                    if (fft_cache == nullptr) {
-                        create_fft_cache();
-                    }
                     detail::basic_radix2_fft_cached<FieldType>(a, fft_cache->first);
                 }
 
