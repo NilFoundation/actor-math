@@ -55,10 +55,14 @@ namespace nil {
                         std::vector<typename FieldType::value_type> &cache) {
                     typedef typename FieldType::value_type value_type;
                     cache.resize(size);
-                    cache[0] = value_type::one();
-                    for (std::size_t i = 1; i < size; ++i) {
-                        cache[i] = cache[i - 1] * omega;
-                    }
+                    wait_for_all(ThreadPool::get_instance(ThreadPool::PoolLevel::LOW).block_execution<void>(
+                        size,
+                        [&cache, &omega](std::size_t begin, std::size_t end) {
+                            cache[begin] = omega.pow(begin);
+                            for (std::size_t i = begin + 1; i < end; ++i) {
+                                cache[i] = cache[i - 1] * omega;
+                            }
+                        }));
                 }
 
                 /*

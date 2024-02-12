@@ -101,7 +101,7 @@ namespace nil {
                         }
                     }
 
-                    detail::basic_radix2_fft<FieldType>(a, omega.inversed());
+                    detail::basic_radix2_fft_cached<FieldType>(a, fft_cache->second);
 
                     const field_value_type sconst = field_value_type(a.size()).inversed();
                     nil::crypto3::parallel_foreach(a.begin(), a.end(), [&sconst](value_type& a_i){
