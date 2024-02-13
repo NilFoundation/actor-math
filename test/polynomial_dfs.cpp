@@ -1374,9 +1374,12 @@ BOOST_AUTO_TEST_CASE(polynomial_dfs_resize_perf_test, *boost::unit_test::disable
  
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 10; ++i) {
+std::cout << "Copying poly" << std::endl;
         auto poly2 = poly;
+std::cout << "Resizing poly" << std::endl;
         poly2.resize(8 * size);
 
+std::cout << "Checking size" << std::endl;
         BOOST_CHECK(poly2.size() == 8 * size);
     }
 

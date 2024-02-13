@@ -333,6 +333,8 @@ namespace nil {
                 void resize(size_type _sz,
                             std::shared_ptr<evaluation_domain<typename value_type::field_type>> old_domain = nullptr,
                             std::shared_ptr<evaluation_domain<typename value_type::field_type>> new_domain = nullptr) {
+                    nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Resize Poly");
+
                     if (this->size() == _sz)
                     {
                         return;
@@ -345,18 +347,38 @@ namespace nil {
                     } else {
                         typedef typename value_type::field_type FieldType;
                         if (old_domain == nullptr) {
+                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Make old veval domain");
+                            std::cout << "Creating old domain" << std::endl;
                             old_domain = make_evaluation_domain<FieldType>(this->size());
+                            std::cout << "Done creating old domain" << std::endl;
                         } else {
                             BOOST_ASSERT_MSG(old_domain->size() == this->size(), "Old domain size is not equal to the polynomial size");
                         }
-                        old_domain->inverse_fft(this->val);
-                        this->val.resize(_sz, FieldValueType::zero());
+                        std::cout << "Inverse FFT" << std::endl;
+                        {
+                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Inverse FFT");
+                            old_domain->inverse_fft(this->val);
+                        }
+                        std::cout << "Done Inverse FFT" << std::endl;
+                        {
+                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Vector resize");
+                            this->val.resize(_sz, FieldValueType::zero());
+                        }
+                        std::cout << "Resized vector" << std::endl;
                         if (new_domain == nullptr) {
+                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Make new eval domain");
+                            std::cout << "Create new eval domain" << std::endl;
                             new_domain = make_evaluation_domain<FieldType>(_sz);
+                            std::cout << "Done Create new eval domain" << std::endl;
                         } else {
                             BOOST_ASSERT_MSG(new_domain->size() == _sz, "New domain size is not equal to the polynomial size");
                         }
-                        new_domain->fft(this->val);
+                        std::cout << "FFT" << std::endl;
+                        {
+                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Final FFT");
+                            new_domain->fft(this->val);
+                        }
+                        std::cout << "Done FFT" << std::endl;
                     }
                 }
 
