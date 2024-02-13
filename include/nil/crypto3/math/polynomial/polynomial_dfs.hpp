@@ -38,9 +38,9 @@
 #include <nil/crypto3/math/polynomial/basic_operations.hpp>
 #include <nil/crypto3/math/domains/evaluation_domain.hpp>
 #include <nil/crypto3/math/algorithms/make_evaluation_domain.hpp>
+
 #include <nil/actor/core/thread_pool.hpp>
 #include <nil/actor/core/parallelization_utils.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/detail/placeholder_scoped_profiler.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -333,8 +333,6 @@ namespace nil {
                 void resize(size_type _sz,
                             std::shared_ptr<evaluation_domain<typename value_type::field_type>> old_domain = nullptr,
                             std::shared_ptr<evaluation_domain<typename value_type::field_type>> new_domain = nullptr) {
-                    nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Resize Poly");
-
                     if (this->size() == _sz)
                     {
                         return;
@@ -347,29 +345,18 @@ namespace nil {
                     } else {
                         typedef typename value_type::field_type FieldType;
                         if (old_domain == nullptr) {
-                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Make old veval domain");
                             old_domain = make_evaluation_domain<FieldType>(this->size());
                         } else {
                             BOOST_ASSERT_MSG(old_domain->size() == this->size(), "Old domain size is not equal to the polynomial size");
                         }
-                        {
-                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Inverse FFT");
-                            old_domain->inverse_fft(this->val);
-                        }
-                        {
-                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Vector resize");
-                            this->val.resize(_sz, FieldValueType::zero());
-                        }
+                        old_domain->inverse_fft(this->val);
+                        this->val.resize(_sz, FieldValueType::zero());
                         if (new_domain == nullptr) {
-                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Make new eval domain");
                             new_domain = make_evaluation_domain<FieldType>(_sz);
                         } else {
                             BOOST_ASSERT_MSG(new_domain->size() == _sz, "New domain size is not equal to the polynomial size");
                         }
-                        {
-                            nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("Final FFT");
-                            new_domain->fft(this->val);
-                        }
+                        new_domain->fft(this->val);
                     }
                 }
 
@@ -567,10 +554,8 @@ namespace nil {
 
                     if (other.size() < polynomial_s) {
                         polynomial_dfs tmp(other);
-//std::cout << "Resizing a poly from size " << other.size() << " -> " << polynomial_s << std::endl;
                         tmp.resize(polynomial_s, other_domain, new_domain);
 
-//std::cout << "In-place multiplication of 2 polys of size " << polynomial_s << std::endl;
                         in_place_parallel_transform(this->begin(), this->end(), tmp.begin(),
                             [](FieldValueType& v1, const FieldValueType& v2){v1*=v2;});
                         return *this;
@@ -795,7 +780,7 @@ namespace nil {
             template<typename FieldType>
             static inline polynomial_dfs<typename FieldType::value_type> polynomial_sum(
                     std::vector<math::polynomial_dfs<typename FieldType::value_type>> addends) {
-                PROFILE_PLACEHOLDER_SCOPE("Poly addition");
+                PROFILE_PLACEHOLDER_SCOPE("Polynomial SUM");
 
                 std::size_t max_size = 0;
                 for (const auto& poly: addends) {
@@ -841,7 +826,7 @@ namespace nil {
             template<typename FieldType>
             static inline polynomial_dfs<typename FieldType::value_type> polynomial_product(
                     std::vector<math::polynomial_dfs<typename FieldType::value_type>> multipliers) {
-                PROFILE_PLACEHOLDER_SCOPE("Poly product");
+                PROFILE_PLACEHOLDER_SCOPE("Polynomial product");
                 // Pre-create all the domains. We could do this on-the-go, but we want this function to be more
                 // parallelization-friendly. This single-threaded version may look a bit complicated,
                 // but it's now very similar to what we have in parallel code.
@@ -866,21 +851,17 @@ namespace nil {
                 }
 
                 // We cannot use LOW level thread pool here, make_evaluation_domain uses it.
-std::cout << "Creating on high level pool " << needed_domain_sizes.size() << " domains" << std::endl;
                 parallel_foreach(needed_domain_sizes.begin(), needed_domain_sizes.end(), 
                     [&domain_cache](std::size_t domain_size) {
                         domain_cache[domain_size] = make_evaluation_domain<FieldType>(domain_size);
                     }, ThreadPool::PoolLevel::HIGH);
 
-std::cout << "Multiplying." << std::endl;
                 for (std::size_t stride = 1; stride < multipliers.size(); stride <<= 1) {
                     const std::size_t double_stride = stride << 1;
                     // This loop will run in parallel.
                     std::size_t max_i = (multipliers.size() - stride) / double_stride;
                     if ((multipliers.size() - stride) % double_stride != 0)
                         max_i++;
-
-std::cout << "We have " << max_i << " polynomials to multiply, each of size " << multipliers[0].size() << std::endl;
 
                     // We can't use LOW level thread pool here, it's used in cached_multiplication.
                     parallel_for(0, max_i, 
@@ -906,7 +887,6 @@ std::cout << "We have " << max_i << " polynomials to multiply, each of size " <<
                             multipliers[index2] = polynomial_dfs<typename FieldType::value_type>();
                     }, ThreadPool::PoolLevel::HIGH);
                 }
-std::cout << "Done Multiplying." << std::endl;
                 return multipliers[0];
             }
 

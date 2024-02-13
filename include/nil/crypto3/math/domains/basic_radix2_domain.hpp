@@ -36,9 +36,6 @@
 #include <nil/crypto3/math/polynomial/polynomial.hpp>
 #include <nil/actor/core/parallelization_utils.hpp>
 
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/detail/placeholder_scoped_profiler.hpp>
-
-
 namespace nil {
     namespace crypto3 {
         namespace math {
@@ -56,8 +53,6 @@ namespace nil {
                 std::unique_ptr<cache_type> fft_cache;
 
                 void create_fft_cache() {
-                    nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("basic_radix2_domain.hpp: create_fft_cache");
-
                     fft_cache = std::make_unique<cache_type>(std::vector<field_value_type>(), std::vector<field_value_type>());
                     detail::create_fft_cache<FieldType>(this->m, omega, fft_cache->first);
                     detail::create_fft_cache<FieldType>(this->m, omega.inversed(), fft_cache->second);
@@ -70,7 +65,6 @@ namespace nil {
                 basic_radix2_domain(const std::size_t m)
                         : evaluation_domain<FieldType, ValueType>(m),
                           omega(unity_root<FieldType>(m)) {
-                    nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("basic_radix2_domain.hpp: constructor");
                     if (m <= 1)
                         throw std::invalid_argument("basic_radix2(): expected m > 1");
 

@@ -38,7 +38,6 @@
 
 #include <nil/actor/core/thread_pool.hpp>
 #include <nil/actor/core/parallelization_utils.hpp>
-#include <nil/crypto3/zk/snark/systems/plonk/placeholder/detail/placeholder_scoped_profiler.hpp>
 
 namespace nil {
     namespace crypto3 {
@@ -53,19 +52,12 @@ namespace nil {
                         const std::size_t size,
                         const typename FieldType::value_type &omega,
                         std::vector<typename FieldType::value_type> &cache) {
-                    nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("detail::create_fft_cache");
-
                     typedef typename FieldType::value_type value_type;
-                    {
-                        nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("cache resize");
-                        cache.resize(size);
-                    }
+                    cache.resize(size);
                     wait_for_all(ThreadPool::get_instance(ThreadPool::PoolLevel::LOW).block_execution<void>(
                         size,
                         [&cache, &omega](std::size_t begin, std::size_t end) {
-                            {   nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("omega pow");
-                                cache[begin] = omega.pow(begin);
-                            }
+                            cache[begin] = omega.pow(begin);
                             for (std::size_t i = begin + 1; i < end; ++i) {
                                 cache[i] = cache[i - 1] * omega;
                             }
