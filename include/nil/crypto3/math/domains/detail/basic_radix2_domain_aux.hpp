@@ -63,7 +63,6 @@ namespace nil {
                     wait_for_all(ThreadPool::get_instance(ThreadPool::PoolLevel::LOW).block_execution<void>(
                         size,
                         [&cache, &omega](std::size_t begin, std::size_t end) {
-                            std::cout << "Creating fft cache for range " << begin << " -> " << end << std::endl;
                             {   nil::crypto3::zk::snark::detail::placeholder_scoped_aggregate_profiler profiler("omega pow");
                                 cache[begin] = omega.pow(begin);
                             }
