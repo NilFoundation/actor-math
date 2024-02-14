@@ -780,8 +780,6 @@ namespace nil {
             template<typename FieldType>
             static inline polynomial_dfs<typename FieldType::value_type> polynomial_sum(
                     std::vector<math::polynomial_dfs<typename FieldType::value_type>> addends) {
-                PROFILE_PLACEHOLDER_SCOPE("Polynomial SUM");
-
                 std::size_t max_size = 0;
                 for (const auto& poly: addends) {
                     max_size = std::max(max_size, poly.size());
@@ -826,7 +824,6 @@ namespace nil {
             template<typename FieldType>
             static inline polynomial_dfs<typename FieldType::value_type> polynomial_product(
                     std::vector<math::polynomial_dfs<typename FieldType::value_type>> multipliers) {
-                PROFILE_PLACEHOLDER_SCOPE("Polynomial product");
                 // Pre-create all the domains. We could do this on-the-go, but we want this function to be more
                 // parallelization-friendly. This single-threaded version may look a bit complicated,
                 // but it's now very similar to what we have in parallel code.
