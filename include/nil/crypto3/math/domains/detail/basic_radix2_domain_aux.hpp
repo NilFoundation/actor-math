@@ -53,15 +53,15 @@ namespace nil {
                         const typename FieldType::value_type &omega,
                         std::vector<typename FieldType::value_type> &cache) {
                     typedef typename FieldType::value_type value_type;
-                    cache.resize(size);
-                    wait_for_all(ThreadPool::get_instance(ThreadPool::PoolLevel::LOW).block_execution<void>(
+                    cache.resize(size, FieldType::value_type::zero());
+                    wait_for_all(parallel_run_in_chunks<void>(
                         size,
                         [&cache, &omega](std::size_t begin, std::size_t end) {
                             cache[begin] = omega.pow(begin);
                             for (std::size_t i = begin + 1; i < end; ++i) {
                                 cache[i] = cache[i - 1] * omega;
                             }
-                        }));
+                        }, ThreadPool::PoolLevel::LOW));
                 }
 
                 /*
@@ -94,13 +94,13 @@ namespace nil {
 
                     // invariant: m = 2^{s-1}
                     value_type t;
-                    for (std::size_t s = 1, m = 1, inc = n / 2; s <= logn; ++s, m <<= 1, inc >>=1) {
+                    for (std::size_t s = 1, m = 1, inc = n / 2; s <= logn; ++s, m <<= 1, inc >>= 1) {
                         // w_m is 2^s-th root of unity now
                         size_t count_k = n / (2 * m) + (n % (2 * m) ? 1 : 0);
 
                         // Here we can parallelize on the both loops with 'k' and 'm', because for each value of k and m
                         // the ranges of array 'a' used do not intersect. Think of these 2 loops as 1.
-                        wait_for_all(ThreadPool::get_instance(ThreadPool::PoolLevel::LOW).block_execution<void>(
+                        wait_for_all(parallel_run_in_chunks<void>(
                             m * count_k,
                             [&a, m, count_k, inc, &omega_cache](std::size_t begin, std::size_t end) {
                                 size_t current_index = begin;
@@ -124,7 +124,7 @@ namespace nil {
                                             return;
                                     }
                                 }
-                            }
+                            }, ThreadPool::PoolLevel::LOW
                         ));
                     } 
                 }
@@ -140,13 +140,8 @@ namespace nil {
                     if (omega_cache == nullptr) {
                         std::vector<typename FieldType::value_type> omega_powers;
                         create_fft_cache<FieldType>(a.size(), omega, omega_powers);
-if (omega_powers.size() == 0)
-    throw "We have a problem here.";
                         basic_radix2_fft_cached<FieldType>(a, omega_powers);
                     } else {
-if (omega_cache == nullptr || omega_cache->size() == 0)
-    throw "We have a problem here 2.";
-
                         basic_radix2_fft_cached<FieldType>(a, *omega_cache);
                     }
                 }

@@ -74,11 +74,11 @@ namespace nil {
                     _d = 0;
                 }
 
-                explicit polynomial_dfs(size_t d, size_type n) : val(n), _d(d) {
+                explicit polynomial_dfs(size_t d, size_type n) : val(n, FieldValueType::zero()), _d(d) {
                     BOOST_ASSERT_MSG(n == detail::power_of_two(n), "DFS optimal polynomial size must be a power of two");
                 }
 
-                explicit polynomial_dfs(size_t d, size_type n, const allocator_type& a) : val(n, a), _d(d) {
+                explicit polynomial_dfs(size_t d, size_type n, const allocator_type& a) : val(n, FieldValueType::zero(), a), _d(d) {
                     BOOST_ASSERT_MSG(n == detail::power_of_two(n), "DFS optimal polynomial size must be a power of two");
                 }
 
